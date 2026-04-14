@@ -600,4 +600,24 @@ footer {
 
 .dot:hover {
     background: rgba(0, 210, 255, 0.5); /* Hover කළ විට ලා නිල් පාටක් */
+}/* --- Mobile Fixes --- */
+
+/* මොබයිල් ෆෝන් වලදී (Screen width 768px ට අඩු නම්) */
+@media (max-width: 768px) {
+    /* 1. මවුස් එක මොබයිල් වලදී හංගන්න */
+    .cursor-dot, .cursor-outline {
+        display: none !important;
+    }
+
+    /* 2. සාමාන්‍ය මවුස් එක මොබයිල් වලදී පෙන්වන්න (නැත්නම් බටන් පේන්නේ නැති වෙයි) */
+    * {
+        cursor: auto !important;
+    }
+
+    /* 3. පිටුව දෙපැත්තට ලිස්සන එක සම්පූර්ණයෙන්ම තහනම් කරන්න */
+    html, body {
+        overflow-x: hidden !important;
+        width: 100vw;
+        position: relative;
+    }
 }
