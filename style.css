@@ -105,11 +105,11 @@ nav ul li a:hover { color: var(--primary); }
     align-items: center;
     justify-content: center;
     text-align: center;
-    position: relative; /* මේක වැදගත් */
+    position: relative;
     overflow: hidden;
+    padding: 0 20px;
 }
 
-/* Side Neon Lines (Hero Only) */
 .side-line {
     position: absolute;
     top: 0;
@@ -121,15 +121,8 @@ nav ul li a:hover { color: var(--primary); }
     opacity: 0.3;
 }
 
-.left-line {
-    left: 5%;
-    animation: neonScan 4s linear infinite;
-}
-
-.right-line {
-    right: 5%;
-    animation: neonScan 4s linear infinite reverse;
-}
+.left-line { left: 5%; animation: neonScan 4s linear infinite; }
+.right-line { right: 5%; animation: neonScan 4s linear infinite reverse; }
 
 @keyframes neonScan {
     0% { background-position: 0% -100%; }
@@ -153,11 +146,11 @@ nav ul li a:hover { color: var(--primary); }
 .hero-content {
     position: relative;
     z-index: 10;
-    transition: transform 0.1s ease-out;
+    width: 100%;
 }
 
 .hero h1 {
-    font-size: 5rem;
+    font-size: clamp(2.5rem, 8vw, 5rem); /* Mobile වලදී ඉබේම කුඩා වේ */
     font-weight: 900;
     text-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
 }
@@ -179,8 +172,8 @@ nav ul li a:hover { color: var(--primary); }
 .hero p {
     max-width: 600px;
     color: var(--text-muted);
-    font-size: 1.2rem;
-    margin: 0 auto 60px; /* Get Started බටන් එක තව පහළට කර ඇත */
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    margin: 0 auto 60px;
 }
 
 .btn-main {
@@ -194,47 +187,34 @@ nav ul li a:hover { color: var(--primary); }
     box-shadow: 0 8px 20px rgba(0, 210, 255, 0.3);
 }
 
-.btn-main:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 210, 255, 0.5);
-}
-
 /* --- STORE & CARDS --- */
-.store { padding: 120px 8%; text-align: center; }
-.section-title { margin-bottom: 60px; font-size: 2.5rem; }
-.product-grid { display: flex; justify-content: center; }
+.store { padding: 100px 8%; text-align: center; }
+.section-title { margin-bottom: 60px; font-size: 2.2rem; }
+.product-grid { display: flex; justify-content: center; width: 100%; }
 
 .card {
     background: var(--card-bg);
-    padding: 35px;
+    padding: 30px;
     border-radius: 28px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: 0.5s;
+    width: 100%;
     max-width: 450px;
     backdrop-filter: blur(12px);
 }
 
-.card:hover {
-    transform: translateY(-15px);
-    border-color: var(--primary);
-}
-
 .card img { width: 100%; border-radius: 18px; margin-bottom: 25px; }
-
-.price {
-    color: var(--primary);
-    font-size: 1.7rem;
-    font-weight: 800;
-    margin-bottom: 10px;
-}
+.price { color: var(--primary); font-size: 1.6rem; font-weight: 800; margin-bottom: 10px; }
 
 .download-btn {
-    padding: 12px 25px;
+    padding: 12px 15px;
     border-radius: 12px;
     text-decoration: none;
     color: white;
     font-weight: 700;
+    font-size: 0.85rem;
     transition: 0.4s;
+    text-align: center;
 }
 
 /* --- FOOTER --- */
@@ -243,22 +223,28 @@ footer {
     background: rgba(0, 0, 0, 0.95);
     border-top: 1px solid rgba(255, 255, 255, 0.03);
     text-align: center;
-    margin-top: 60px;
 }
 
 .footer-content p { color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; margin-bottom: 10px; }
-.footer-content span { color: var(--primary); }
+.footer-links { display: flex; justify-content: center; gap: 12px; align-items: center; flex-wrap: wrap; }
+.footer-links a { color: var(--primary); text-decoration: none; font-size: 0.75rem; }
 
-.footer-links { display: flex; justify-content: center; gap: 12px; align-items: center; }
-.footer-links a {
-    color: var(--primary);
-    text-decoration: none;
-    font-size: 0.75rem;
-    text-shadow: 0 0 8px rgba(0, 210, 255, 0.3);
+/* --- MOBILE RESPONSIVE FIXES --- */
+@media (max-width: 768px) {
+    nav { padding: 15px 5%; }
+    nav ul { display: none; } /* Mobile වලදී menu එක හංගමු (ඉඩ මදි නිසා) */
+    
+    .left-line { left: 2%; }
+    .right-line { right: 2%; }
+    
+    .card-action {
+        flex-direction: column; /* බටන් දෙක එක යට එක එන්න */
+        gap: 10px;
+    }
+    
+    .download-btn { width: 100%; }
 }
 
-.separator { color: rgba(255, 255, 255, 0.15); font-size: 0.75rem; }
-
 /* Scrollbar */
-::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 10px; }
