@@ -39,7 +39,41 @@
             <a href="#store" class="btn-main">Get Started</a>
         </div>
     </div>
-</header>
+</header><section class="app-showcase">
+    <div class="showcase-container">
+        <div class="showcase-text">
+            <h2>Experience Premium Power</h2>
+            <p>DS Optimizer v7.5 is designed for speed.</p>
+        </div>
+        
+        <div class="showcase-media">
+            <div class="slider-wrapper" onclick="openLightbox()">
+                <div class="fading-slider" id="fadingSlider">
+                    <img src="shot1.png" class="slide active">
+                    <img src="shot2.png" class="slide">
+                    <img src="shot3.png" class="slide">
+                    <img src="shot4.png" class="slide">
+                </div>
+                <div class="media-glow"></div>
+            </div>
+
+            <div class="slider-controls">
+                <div class="dots-container">
+                    <span class="dot active" onclick="goToSlide(0)"></span>
+                    <span class="dot" onclick="goToSlide(1)"></span>
+                    <span class="dot" onclick="goToSlide(2)"></span>
+                    <span class="dot" onclick="goToSlide(3)"></span>
+                </div>
+                <p class="click-hint">Click image to enlarge</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <span class="close-btn">&times;</span>
+    <img id="lightbox-img" src="" alt="Enlarged View">
+</div>
 
     <section id="store" class="store">
         <h2 class="section-title" data-aos="fade-up">Featured Product</h2>
