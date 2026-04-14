@@ -16,12 +16,15 @@
 }
 
 body {
-    background-color: var(--bg);
-    color: var(--text-main);
+    margin: 0;
+    padding: 0;
     font-family: 'Inter', sans-serif;
-    overflow-x: hidden;
-    scroll-behavior: smooth;
-    perspective: 1000px;
+    background-color: #050505;
+    color: #fff;
+    
+    /* පල්ලෙහාට scroll වෙන්න ඉඩ දීලා, දෙපැත්තට යන එක විතරක් නවත්වන්න */
+    overflow-x: hidden; 
+    width: 100%;
 }
 
 /* --- BACKGROUND DESIGN ELEMENTS --- */
