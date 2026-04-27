@@ -1,623 +1,260 @@
-/* --- ROOT VARIABLES --- */
 :root {
-    --primary: #00d2ff;
-    --secondary: #3a7bd5;
-    --bg: #030303;
-    --card-bg: rgba(255, 255, 255, 0.03);
-    --text-main: #ffffff;
-    --text-muted: rgba(255, 255, 255, 0.6);
+    --neon-blue: #00d2ff;
+    --neon-pink: #ff00f7;
+    --neon-purple: #7000ff;
+    --bg: #010103;
 }
 
-/* --- GLOBAL RESET --- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+* { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
+body { background: var(--bg); color: white; font-family: 'Rajdhani', sans-serif; overflow-x: hidden; }
+
+/* Background Animation */
+.bg-container { position: fixed; width: 100vw; height: 100vh; z-index: -1; background: #000; }
+.blob-1, .blob-2, .blob-3 {
+    position: absolute; width: 600px; height: 600px; border-radius: 50%;
+    filter: blur(80px); opacity: 0.3; animation: move 20s infinite alternate;
+}
+.blob-1 { background: var(--neon-blue); top: -10%; left: -10%; }
+.blob-2 { background: var(--neon-pink); bottom: -10%; right: -10%; }
+.blob-3 { background: var(--neon-purple); top: 30%; left: 30%; }
+@keyframes move { 0% { transform: translate(0,0); } 100% { transform: translate(150px, 80px); } }
+.glass-overlay { position: absolute; width: 100%; height: 100%; backdrop-filter: brightness(0.6); }
+
+/* Panels (Auth & Payment) */
+.auth-box, .payment-box {
+    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 210, 255, 0.2);
+    padding: 40px; width: 420px; border-radius: 20px; backdrop-filter: blur(15px);
+    text-align: center; box-shadow: 0 0 50px rgba(0,0,0,0.5);
 }
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: #050505;
-    color: #fff;
-    
-    /* පල්ලෙහාට scroll වෙන්න ඉඩ දීලා, දෙපැත්තට යන එක විතරක් නවත්වන්න */
-    overflow-x: hidden; 
-    width: 100%;
+.auth-screen, .payment-overlay { height: 100vh; display: flex; justify-content: center; align-items: center; }
+.payment-overlay { position: fixed; top: 0; left: 0; width: 100%; background: rgba(0,0,0,0.85); z-index: 10000; }
+
+.auth-header h2, .payment-header h2 { font-family: 'Orbitron'; letter-spacing: 2px; }
+.auth-header span, .payment-header span { color: var(--neon-blue); }
+
+/* Input & Buttons */
+.input-group input { width: 100%; padding: 12px; margin-top: 15px; background: rgba(0,0,0,0.4); border: 1px solid rgba(0,210,255,0.2); color: white; border-radius: 8px; }
+.auth-btn { width: 100%; padding: 15px; margin-top: 20px; background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple)); border: none; color: white; font-family: 'Orbitron'; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+.auth-btn:hover { filter: brightness(1.2); transform: scale(1.02); }
+
+/* BIG GET NOW BUTTON */
+.buy-trigger {
+    width: 100%; padding: 20px; margin-top: 15px; background: transparent;
+    color: var(--neon-blue); border: 2px solid var(--neon-blue);
+    font-family: 'Orbitron'; font-weight: 900; letter-spacing: 2px;
+    border-radius: 8px; transition: 0.4s;
 }
+.buy-trigger:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 30px var(--neon-blue); transform: scale(1.02); }
 
-/* --- BACKGROUND DESIGN ELEMENTS --- */
-.bg-design {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -2;
-    background: #030303;
-}
+/* Payment Details */
+.account-details { background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; margin: 20px 0; border: 1px dashed var(--neon-blue); text-align: left; }
+.acc-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
 
-.bg-design::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-    mask-image: radial-gradient(circle, black, transparent 80%);
-}
+.modern-upload-box { display: flex; flex-direction: column; align-items: center; padding: 25px; border: 2px dashed var(--neon-pink); border-radius: 15px; cursor: pointer; margin-top: 15px; }
+.format-text { font-size: 10px; color: #666; margin-top: 8px; font-family: 'Orbitron'; }
+.file-preview { font-size: 12px; color: var(--neon-pink); margin-top: 10px; font-weight: bold; }
 
-#bg-glow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 50% 50%, rgba(0, 210, 255, 0.1) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 1;
-    transition: background 0.15s ease-out;
-}
+.cancel-link { background: none; border: none; color: #ff4444; font-family: 'Orbitron'; font-size: 11px; margin-top: 15px; cursor: pointer; }
 
-.orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.15;
-    animation: moveOrb 20s infinite alternate;
-}
+/* Store UI */
+.glass-nav { display: flex; justify-content: space-between; padding: 20px 50px; border-bottom: 1px solid rgba(0,210,255,0.2); backdrop-filter: blur(10px); }
+.logo { font-family: 'Orbitron'; font-size: 24px; }
+.logo span { color: var(--neon-pink); }
+.glitch { font-family: 'Orbitron'; font-size: clamp(3rem, 10vw, 5rem); text-align: center; margin: 40px 0; }
 
-.orb-1 { width: 400px; height: 400px; background: var(--primary); top: -100px; right: -100px; }
-.orb-2 { width: 500px; height: 500px; background: var(--secondary); bottom: -150px; left: -150px; animation-delay: -5s; }
-.orb-3 { width: 300px; height: 300px; background: #7000ff; top: 40%; left: 20%; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 40px; }
+.cyber-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 25px; border-radius: 20px; transition: 0.3s; }
 
-@keyframes moveOrb {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(50px, 100px) scale(1.2); }
-}
+/* Cursor */
+.cursor-dot { width: 8px; height: 8px; background: var(--neon-blue); position: fixed; z-index: 100000; border-radius: 50%; pointer-events: none; }
+.cursor-outline { width: 35px; height: 35px; border: 2px solid var(--neon-pink); position: fixed; z-index: 99999; border-radius: 50%; pointer-events: none; transition: 0.1s; }/* --- COLORFUL ANIMATION FOR BOTH LOGO & TITLE --- */
 
-/* --- NAVIGATION --- */
-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 8%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(15px);
-    position: fixed;
-    width: 100%;
-    top: 0;
-    z-index: 1000;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.logo { font-size: 24px; font-weight: 900; }
-.logo span { color: var(--primary); }
-
-nav ul { display: flex; list-style: none; gap: 30px; }
-nav ul li a { color: var(--text-main); text-decoration: none; font-size: 14px; transition: 0.3s; }
-nav ul li a:hover { color: var(--primary); }
-
-/* --- HERO SECTION & SIDE LINES --- */
-.hero {
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    padding: 0 20px;
-}
-
-.side-line {
-    position: absolute;
-    top: 0;
-    width: 2px;
-    height: 100%;
-    background: linear-gradient(to bottom, transparent, var(--primary), transparent);
-    z-index: 5;
-    box-shadow: 0 0 15px var(--primary);
-    opacity: 0.3;
-}
-
-.left-line { left: 5%; animation: neonScan 4s linear infinite; }
-.right-line { right: 5%; animation: neonScan 4s linear infinite reverse; }
-
-@keyframes neonScan {
-    0% { background-position: 0% -100%; }
-    100% { background-position: 0% 100%; }
-}
-
-.hero-bg-glow {
-    position: absolute;
-    width: 600px; height: 600px;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(0, 210, 255, 0.15) 0%, transparent 70%);
-    filter: blur(50px);
-    animation: pulseGlow 8s infinite alternate;
-}
-
-@keyframes pulseGlow {
-    100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.8; }
-}
-
-.hero-content {
-    position: relative;
-    z-index: 10;
-    width: 100%;
-}
-
-.hero h1 {
-    font-size: clamp(2.5rem, 8vw, 5rem); /* Mobile වලදී ඉබේම කුඩා වේ */
+/* Navbar Logo Style */
+.logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 26px;
     font-weight: 900;
-    text-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+    color: #fff;
 }
 
-.hero h1 span {
-    background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.hero-line {
-    width: 80px; height: 4px;
-    background: var(--primary);
-    margin: 10px auto 25px;
-    box-shadow: 0 0 15px var(--primary);
-    border-radius: 10px;
-}
-
-.hero p {
-    max-width: 600px;
-    color: var(--text-muted);
-    font-size: clamp(1rem, 4vw, 1.2rem);
-    margin: 0 auto 60px;
-}
-
-.btn-main {
-    background: linear-gradient(45deg, var(--primary), var(--secondary));
-    color: white;
-    padding: 16px 45px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: 0.4s;
-    box-shadow: 0 8px 20px rgba(0, 210, 255, 0.3);
-}
-
-/* --- STORE & CARDS --- */
-.store { padding: 100px 8%; text-align: center; }
-.section-title { margin-bottom: 60px; font-size: 2.2rem; }
-.product-grid { display: flex; justify-content: center; width: 100%; }
-
-.card {
-    background: var(--card-bg);
-    padding: 30px;
-    border-radius: 28px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: 0.5s;
-    width: 100%;
-    max-width: 450px;
-    backdrop-filter: blur(12px);
-}
-
-.card img { width: 100%; border-radius: 18px; margin-bottom: 25px; }
-.price { color: var(--primary); font-size: 1.6rem; font-weight: 800; margin-bottom: 10px; }
-
-.download-btn {
-    padding: 12px 15px;
-    border-radius: 12px;
-    text-decoration: none;
-    color: white;
-    font-weight: 700;
-    font-size: 0.85rem;
-    transition: 0.4s;
+/* Main Glitch Title Style */
+.glitch {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(3rem, 10vw, 5rem);
+    font-weight: 900;
     text-align: center;
-}
-
-/* --- FOOTER --- */
-footer {
-    padding: 30px 8%;
-    background: rgba(0, 0, 0, 0.95);
-    border-top: 1px solid rgba(255, 255, 255, 0.03);
-    text-align: center;
-}
-
-.footer-content p { color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; margin-bottom: 10px; }
-.footer-links { display: flex; justify-content: center; gap: 12px; align-items: center; flex-wrap: wrap; }
-.footer-links a { color: var(--primary); text-decoration: none; font-size: 0.75rem; }
-
-/* --- MOBILE RESPONSIVE FIXES --- */
-@media (max-width: 768px) {
-    nav { padding: 15px 5%; }
-    nav ul { display: none; } /* Mobile වලදී menu එක හංගමු (ඉඩ මදි නිසා) */
-    
-    .left-line { left: 2%; }
-    .right-line { right: 2%; }
-    
-    .card-action {
-        flex-direction: column; /* බටන් දෙක එක යට එක එන්න */
-        gap: 10px;
-    }
-    
-    .download-btn { width: 100%; }
-}
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 10px; }/* --- App Showcase Section (Fading Animation) --- */
-.app-showcase {
-    padding: 100px 8%;
-    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
     position: relative;
-    overflow: hidden;
+    text-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
 }
 
-.showcase-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* දෙපැත්තට කරන්න */
-    max-width: 1200px;
-    margin: 0 auto;
-    gap: 50px;
-}
-
-.showcase-text {
-    flex: 1;
-    max-width: 500px;
-    text-align: left;
-}
-
-.showcase-text h2 {
-    font-size: 2.8rem;
-    font-weight: 800;
-    margin-bottom: 20px;
-    background: linear-gradient(90deg, #fff, var(--primary));
+/* වර්ණ වෙනස් වෙන මැජික් එක (Span එකට අදාළයි) */
+.logo span, 
+.glitch span {
+    background: linear-gradient(90deg, #ff00f7, #00d2ff, #fff200, #ff00f7);
+    background-size: 300% auto;
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
+    animation: cyberGradient 4s linear infinite;
 }
 
-.showcase-text p {
-    color: var(--text-muted);
-    font-size: 1.1rem;
-    line-height: 1.7;
+/* Gradient එක ගලාගෙන යන ඇනිමේෂන් එක */
+@keyframes cyberGradient {
+    0% { background-position: 0% center; }
+    100% { background-position: 300% center; }
 }
 
-/* --- Small Animated Slider --- */
-.showcase-media {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end; /* දකුණට කරන්න */
-    position: relative;
-}
-
-/* --- Small Animated Slider --- */
-.showcase-media {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-    position: relative;
-    padding-right: 20px; /* Zoom වෙද්දී පිටට නොපෙනෙන්න ඉඩක් */
-}
-
-.slider-wrapper {
-    position: relative;
-    /* මුල් Size එක - 320px x 200px */
-    width: 320px; 
-    height: 200px;
-    border-radius: 18px;
-    border: 2px solid rgba(0, 210, 255, 0.15);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-    z-index: 5;
-    background: #000;
-    overflow: hidden;
-    
-    /* --- අලුතින් එකතු කළ කොටස --- */
-    /* Animation එක Smooth වෙන්න */
-    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), 
-                box-shadow 0.4s ease, 
-                border-color 0.4s ease;
-    cursor: pointer; /* මවුස් එක ගෙනිච්චම අතක සලකුණ පේන්න */
-}
-
-/* --- මවුස් එක උඩට ගෙනිච්චම (Hover) වෙන දේ --- */
-.slider-wrapper:hover {
-    /* 1. Size එක 1.1 ගුණයක් (10%) වැඩි කිරීම */
-    transform: scale(1.1) translateY(-5px); /* පොඩ්ඩක් උඩටත් යනවා */
-    
-    /* 2. Glow එක සහ Shadow එක තව තද කිරීම */
-    box-shadow: 0 20px 60px rgba(0, 210, 255, 0.4);
-    
-    /* 3. Border එකේ පාට තව දීප්තිමත් කිරීම */
-    border-color: rgba(0, 210, 255, 0.6);
-}
-
-.fading-slider {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.fading-slider .slide {
+/* Main Title එකට විතරක් තියෙන Glitch ගැස්සෙන පෙනුම */
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transition: opacity 1.5s ease-in-out;
-    z-index: 1;
+    opacity: 0.7;
 }
 
-.fading-slider .slide.active {
-    opacity: 1;
-    z-index: 2;
+.glitch::before {
+    left: 2px;
+    text-shadow: -2px 0 #ff00f7;
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim 5s infinite linear alternate-reverse;
 }
 
-/* පින්තූරය පිටුපස තියෙන නිල් එළිය */
-.media-glow {
-    position: absolute;
-    width: 130%; /* Glow එක Zoom වෙද්දී ලොකු වෙන්න */
-    height: 130%;
-    top: -15%;
-    left: -15%;
-    background: radial-gradient(circle, rgba(0, 210, 255, 0.25) 0%, transparent 75%);
-    filter: blur(40px);
-    z-index: 1;
-    pointer-events: none;
-    
-    /* Glow එකත් Smooth වෙන්න */
-    transition: opacity 0.4s ease;
+.glitch::after {
+    left: -2px;
+    text-shadow: -2px 0 #00d2ff;
+    animation: glitch-anim2 1s infinite linear alternate-reverse;
 }
 
-/* මවුස් එක උඩට ගෙනිච්චම පසුබිම් Glow එකත් වැඩි කිරීම */
-.slider-wrapper:hover + .media-glow {
-    opacity: 0.8;
+/* Glitch Animation Keyframes */
+@keyframes glitch-anim {
+    0% { clip: rect(31px, 9999px, 94px, 0); transform: skew(0.85deg); }
+    100% { clip: rect(67px, 9999px, 98px, 0); transform: skew(0.24deg); }
 }
 
-/* --- Mobile Responsiveness --- */
-@media (max-width: 768px) {
-    .showcase-container {
-        flex-direction: column;
-        text-align: center;
-        gap: 30px;
-    }
-    
-    .showcase-text {
-        text-align: center;
-        max-width: 100%;
-    }
-    
-    .showcase-media {
-        justify-content: center;
-        width: 100%;
-        padding-right: 0; /* Mobile වලදී padding අවශ්‍ය නැහැ */
-    }
-    
-    .slider-wrapper {
-        width: 100%;
-        max-width: 350px;
-        height: 220px;
-    }
-    
-    /* Mobile වලදී Hover Effect එක අයින් කිරීම (Touch device නිසා) */
-    .slider-wrapper:hover {
-        transform: scale(1.02); /* Mobile වලදී ඉතාම පොඩි Zoom එකක් */
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-    }
-}
-
-.fading-slider {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-/* --- CSS Fix for Image Sharpness --- */
-.fading-slider .slide {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* පින්තූරය කපන්නේ නැතුව කොටුව ඇතුළටම ගන්න */
-    
-    /* --- අලුතින් එකතු කළ කොටස --- */
-    /* 1. පින්තූරය කුඩා කරද්දී තියුණුව තබා ගැනීම (Browser Rendering) */
-    image-rendering: -webkit-optimize-contrast; /* Webkit (Chrome/Safari) සඳහා */
-    image-rendering: crisp-edges;               /* Firefox සහ අනිත් ඒවා සඳහා */
-    
-    /* 2. ඇනිමේෂන් වලදී බොඳ වීම වැළැක්වීම */
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    
-    /* 3. සුමට මාරු වීම (Fade Animation) */
-    opacity: 0;
-    transition: opacity 1s ease-in-out;
-    z-index: 1;
-}
-
-.fading-slider .slide.active {
-    opacity: 1;
-    z-index: 2;
-}
-
-/* JavaScript එකෙන් active පන්තිය එකතු කළාම පේන විදිහ */
-.fading-slider .slide.active {
-    opacity: 1;
-    z-index: 2;
-}
-
-/* පින්තූරය පිටුපස තියෙන නිල් එළිය */
-.media-glow {
-    position: absolute;
-    width: 110%;
-    height: 110%;
-    top: -5%;
-    left: -5%;
-    background: radial-gradient(circle, rgba(0, 210, 255, 0.2) 0%, transparent 75%);
-    filter: blur(35px);
-    z-index: 1;
-    pointer-events: none;
-}
-
-/* --- Mobile Responsiveness --- */
-@media (max-width: 768px) {
-    .showcase-container {
-        flex-direction: column; /* එක යට එක එන්න */
-        text-align: center;
-        gap: 30px;
-    }
-    
-    .showcase-text {
-        text-align: center;
-        max-width: 100%;
-    }
-    
-    .showcase-media {
-        justify-content: center; /* මැදට කරන්න */
-        width: 100%;
-    }
-    
-    .slider-wrapper {
-        width: 100%; /* Mobile වලදී full width */
-        max-width: 350px; /* උපරිම Size එක */
-        height: 220px; /* Mobile වලදී ටිකක් උස */
-    }
-}/* Click Hint Style */
-.click-hint {
-    margin-top: 15px;
-    font-size: 0.9rem;
-    color: var(--primary);
-    opacity: 0.8;
-    font-style: italic;
-}
-
-/* Lightbox Design */
-.lightbox {
-    display: none; /* මුලින්ම හංගලා තියෙන්නේ */
+@keyframes glitch-anim2 {
+    0% { clip: rect(10px, 9999px, 85px, 0); }
+    100% { clip: rect(90px, 9999px, 60px, 0); }
+}/* --- MODERN MINIMAL LOADER --- */
+.modern-loader {
     position: fixed;
-    z-index: 2000;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
     justify-content: center;
     align-items: center;
-    backdrop-filter: blur(10px);
-    cursor: zoom-out;
+    z-index: 200000;
 }
 
-.lightbox img {
-    max-width: 90%;
-    max-height: 80%;
-    border-radius: 10px;
-    box-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
-    transform: scale(0.9);
-    transition: transform 0.3s ease;
-}
-
-.lightbox.active {
-    display: flex;
-}
-
-.lightbox.active img {
-    transform: scale(1);
-}
-
-.close-btn {
+/* පසුබිම Blur කරන ආකාරය */
+.loader-backdrop {
     position: absolute;
-    top: 30px;
-    right: 40px;
-    color: white;
-    font-size: 40px;
-    font-weight: bold;
-    cursor: pointer;
-}/* --- Slider Controls (Dots & Hint) --- */
-.slider-controls {
-    margin-top: 20px;
+    width: 100%; height: 100%;
+    background: rgba(1, 1, 3, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.loader-main {
+    position: relative;
+    text-align: center;
+    z-index: 10;
+}
+
+/* Pulse Animation */
+.pulse-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 30px;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.pulse-ring {
+    position: absolute;
+    width: 100%; height: 100%;
+    border: 1px solid var(--neon-blue);
+    border-radius: 50%;
+    animation: ripple 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+    opacity: 0;
+}
+
+.pulse-ring:nth-child(2) { animation-delay: 0.5s; }
+.pulse-ring:nth-child(3) { animation-delay: 1s; }
+
+.center-dot {
+    width: 12px; height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 20px #fff, 0 0 40px var(--neon-blue);
+}
+
+@keyframes ripple {
+    0% { transform: scale(0.1); opacity: 0; }
+    50% { opacity: 0.5; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* Text Animation */
+.loading-text-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.auth-text {
+    font-family: 'Orbitron';
+    font-size: 18px;
+    letter-spacing: 5px;
+    color: #fff;
+    font-weight: 400;
+}
+
+.secure-msg {
+    font-family: 'Rajdhani';
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 2px;
+}
+
+/* තිත් තුනක් වැටෙන animation එක */
+.dot-typing {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background-color: var(--neon-blue);
+    box-shadow: 9984px 0 0 0 var(--neon-blue), 9999px 0 0 0 var(--neon-blue), 10014px 0 0 0 var(--neon-blue);
+    animation: dot-typing 1.5s infinite linear;
+    position: relative;
+    left: -10000px;
+}
+
+@keyframes dot-typing {
+    0% { box-shadow: 9984px 0 0 0 var(--neon-blue), 9999px 0 0 0 var(--neon-blue), 10014px 0 0 0 var(--neon-blue); }
+    16% { box-shadow: 9984px -10px 0 0 var(--neon-blue), 9999px 0 0 0 var(--neon-blue), 10014px 0 0 0 var(--neon-blue); }
+    33% { box-shadow: 9984px 0 0 0 var(--neon-blue), 9999px -10px 0 0 var(--neon-blue), 10014px 0 0 0 var(--neon-blue); }
+    50% { box-shadow: 9984px 0 0 0 var(--neon-blue), 9999px 0 0 0 var(--neon-blue), 10014px -10px 0 0 var(--neon-blue); }
+    100% { box-shadow: 9984px 0 0 0 var(--neon-blue), 9999px 0 0 0 var(--neon-blue), 10014px 0 0 0 var(--neon-blue); }
+}.remember-me {
+    display: flex;
     align-items: center;
     gap: 10px;
+    margin: 15px 0;
+    font-family: 'Rajdhani';
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
 }
 
-.dots-container {
-    display: flex;
-    gap: 8px;
-}
-
-.dot {
-    width: 8px;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    transition: all 0.4s ease;
-}
-
-.dot.active {
-    background: var(--primary);
-    box-shadow: 0 0 10px var(--primary);
-    transform: scale(1.2);
-    width: 20px; /* Dan tiyana image eka nisa dot eka digu wenawa */
-    border-radius: 10px;
-}
-
-.click-hint {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    opacity: 0.6;
-    animation: pulseHint 2s infinite;
-}
-
-@keyframes pulseHint {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
-}
-
-/* Slider Wrapper eka mada thaba ganna */
-.showcase-media {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}.dot {
-    cursor: pointer; /* අතක සලකුණ පෙන්වීමට */
-    width: 8px;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    transition: all 0.4s ease;
-}
-
-.dot:hover {
-    background: rgba(0, 210, 255, 0.5); /* Hover කළ විට ලා නිල් පාටක් */
-}/* --- Mobile Fixes --- */
-
-/* මොබයිල් ෆෝන් වලදී (Screen width 768px ට අඩු නම්) */
-@media (max-width: 768px) {
-    /* 1. මවුස් එක මොබයිල් වලදී හංගන්න */
-    .cursor-dot, .cursor-outline {
-        display: none !important;
-    }
-
-    /* 2. සාමාන්‍ය මවුස් එක මොබයිල් වලදී පෙන්වන්න (නැත්නම් බටන් පේන්නේ නැති වෙයි) */
-    * {
-        cursor: auto !important;
-    }
-
-    /* 3. පිටුව දෙපැත්තට ලිස්සන එක සම්පූර්ණයෙන්ම තහනම් කරන්න */
-    html, body {
-        overflow-x: hidden !important;
-        width: 100vw;
-        position: relative;
-    }
+.remember-me input {
+    cursor: pointer;
+    accent-color: var(--neon-blue); /* Checkbox එකේ පාට */
 }

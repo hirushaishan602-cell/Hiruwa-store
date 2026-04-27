@@ -1,208 +1,311 @@
-// 1. AOS Animations පණ ගැන්වීම
-AOS.init({ duration: 1000, once: true });
+// ==========================================
+// 1. PAGE LOAD (Remember Me & Cursor Init)
+// ==========================================
+window.onload = () => {
+    // සේව් කරපු විස්තර තියෙනවාද බලනවා
+    const savedEmail = localStorage.getItem('userEmail');
+    const savedPass = localStorage.getItem('userPass');
+    const rememberCheckbox = document.getElementById('remember');
 
-// 2. Mouse Glow Effect & Title Tilt Effect
-const glow = document.getElementById('bg-glow');
-const heroContent = document.querySelector('.hero-content');
+    if (savedEmail && savedPass) {
+        document.getElementById('email').value = savedEmail;
+        document.getElementById('password').value = savedPass;
+        if (rememberCheckbox) rememberCheckbox.checked = true;
 
+        // --- DATABASE SYNC ADDED ---
+        syncUserPurchases(savedEmail);
+    }
+};
+
+// Custom Cursor Logic
+const dot = document.querySelector('.cursor-dot');
+const outline = document.querySelector('.cursor-outline');
 window.addEventListener('mousemove', (e) => {
-    // Background Glow
-    const xPct = (e.clientX / window.innerWidth) * 100;
-    const yPct = (e.clientY / window.innerHeight) * 100;
-    glow.style.background = `radial-gradient(circle at ${xPct}% ${yPct}%, rgba(0, 210, 255, 0.25) 0%, transparent 70%)`;
+    dot.style.left = e.clientX + 'px'; 
+    dot.style.top = e.clientY + 'px';
+    outline.animate({
+        left: e.clientX + 'px',
+        top: e.clientY + 'px'
+    }, { duration: 500, fill: "forwards" });
+});
 
-    // Hero Tilt
-    let xTilt = (window.innerWidth / 2 - e.clientX) / 60;
-    let yTilt = (window.innerHeight / 2 - e.clientY) / 60;
-    if(heroContent) {
-        heroContent.style.transform = `rotateY(${xTilt}deg) rotateX(${yTilt}deg)`;
+// ==========================================
+// 2. AUTH & LOGIN SYSTEM
+// ==========================================
+function toggleAuthMode() {
+    const title = document.querySelector('.auth-header h2');
+    const nameField = document.getElementById('name-field');
+    const isLogin = title.innerText.includes('LOGIN');
+    title.innerHTML = isLogin ? "SYSTEM_<span>SIGNUP</span>" : "SYSTEM_<span>LOGIN</span>";
+    nameField.style.display = isLogin ? "block" : "none";
+}
+
+document.getElementById('auth-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+    const remember = document.getElementById('remember').checked;
+    
+    // Remember Me Logic
+    if (remember) {
+        localStorage.setItem('userEmail', email);
+        localStorage.setItem('userPass', pass);
+    } else {
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userPass');
+    }
+
+    // --- DISCORD LOGIN NOTIFICATION ---
+    const loginWebhook = "https://discord.com/api/webhooks/1497461764353429604/VbzTTXDDZWEKa-lS9FE4HN4IdaGYl9S0R8zXi7JMFGH1tTd5_Y0soAGHoKoh2efqFNwr";
+    const loginNotify = {
+        content: "👤 **USER SESSION STARTED**",
+        embeds: [{
+            title: "Login Activity Detected",
+            color: 65280, // Green
+            fields: [
+                { name: "User Email", value: email, inline: true },
+                { name: "Device Info", value: navigator.userAgent.split(')')[0] + ')', inline: false },
+                { name: "Login Time", value: new Date().toLocaleString(), inline: true }
+            ],
+            footer: { text: "24/7 Store Security System" }
+        }]
+    };
+
+    fetch(loginWebhook, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginNotify)
+    });
+
+    // --- SHOW MODERN LOADER ---
+    const loader = document.getElementById('loader');
+    const authScreen = document.getElementById('auth-screen');
+    const mainContent = document.getElementById('main-content');
+
+    authScreen.style.display = 'none';
+    loader.style.display = 'flex';
+    loader.style.opacity = '1';
+
+    setTimeout(() => {
+        loader.style.transition = 'opacity 0.8s ease';
+        loader.style.opacity = '0';
+
+        setTimeout(() => {
+            loader.style.display = 'none';
+            mainContent.style.display = 'block';
+            mainContent.style.animation = 'fadeInUp 1s ease forwards';
+
+            // --- DATABASE SYNC ADDED ---
+            syncUserPurchases(email);
+        }, 800);
+    }, 3000);
+});
+
+// ==========================================
+// 3. PAYMENT SYSTEM
+// ==========================================
+let activeProductId = 'product_01'; // ID එක ට්‍රැක් කිරීමට එකතු කළා
+
+function openPayment(productId) { 
+    activeProductId = productId || 'product_01';
+    document.getElementById('payment-modal').style.display = 'flex'; 
+    showStep1(); 
+}
+
+function closePayment() { 
+    document.getElementById('payment-modal').style.display = 'none'; 
+}
+
+function showStep1() { 
+    document.getElementById('payment-step-1').style.display = 'block'; 
+    document.getElementById('payment-step-2').style.display = 'none'; 
+}
+
+function showStep2() { 
+    const s1 = document.getElementById('payment-step-1');
+    const s2 = document.getElementById('payment-step-2');
+    if (s1 && s2) {
+        s1.style.display = 'none';
+        s2.style.display = 'block';
+    }
+}
+
+// Copy Bank Details
+function copyAllDetails() {
+    const bankDetails = "BANK: SAMPATH BANK\nNAME: 24/7 ADMIN\nACC NO: 1234 5678 9012";
+    navigator.clipboard.writeText(bankDetails).then(() => {
+        const toast = document.getElementById('copy-toast');
+        if (toast) {
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+    });
+}
+
+// Slip Preview
+document.getElementById('slip-upload').addEventListener('change', function() {
+    if(this.files[0]) {
+        document.getElementById('upload-text').innerText = "READY TO SUBMIT";
+        document.getElementById('file-preview').innerText = this.files[0].name;
     }
 });
 
-// 3. Discord ID සහ Product දත්ත (මෙහි ඔබගේ User ID එක ඇතුළත් කරන්න)
-const discordDirectMessage = "https://discord.com/users/1438383567859093624"; 
+// Confirm Payment (Discord Upload)
+async function confirmPayment() {
+    const fileInput = document.getElementById('slip-upload');
+    const email = document.getElementById('email').value;
+    const webhookURL = "https://discord.com/api/webhooks/1497314357816721480/WmxsGrXsYy_W9hwajgZSyubEMGia3_JlYgM5nJn9rXRjj8aIaFJhXBFsK-W2xwMh5nEv"; 
 
-const products = [
-    { 
-        name: "DS Optimizer v7.5", 
-        price: "Passkey: Rs. 500.00", 
-        img: "app-image.png", // මෙයට ඔබගේ image එක ලබා දෙන්න
-        downloadUrl: "Files/DS Optimizer v7.5.rar",
-        note: "Download the app for free. A paid passkey is required to activate premium features."
+    if (!fileInput.files[0]) {
+        alert("PLEASE UPLOAD YOUR PAYMENT SLIP!");
+        return;
     }
-];
 
-// 4. කාඩ් එක Display කිරීම
-const grid = document.getElementById('productGrid');
-products.forEach((p, index) => {
-    grid.innerHTML += `
-        <div class="card" data-aos="fade-up">
-            <img src="${p.img}" alt="${p.name}">
-            <h3>${p.name}</h3>
-            <p class="price">${p.price}</p>
-            <p style="font-size: 0.85rem; color: #aaa; margin-bottom: 20px; font-style: italic;">${p.note}</p>
-            
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <a href="${p.downloadUrl}" download class="download-btn" style="background: rgba(255,255,255,0.05); border: 1px solid var(--primary); flex: 1;">
-                    Download App
-                </a>
-                <a href="${discordDirectMessage}" target="_blank" class="download-btn" style="background: linear-gradient(45deg, var(--primary), var(--secondary)); flex: 1;">
-                    Buy Passkey
-                </a>
-            </div>
-        </div>
-    `;
-});// --- Auto Fading Image Slider Logic ---
-function startFadingSlider() {
-    const slides = document.querySelectorAll('.fading-slider .slide');
-    let currentSlide = 0;
-    const totalSlides = slides.length;
-    
-    // පින්තූර 4ක් නැත්නම් වැඩ කරන්න එපා
-    if (totalSlides < 2) return;
-    
-    // මුල්ම පින්තූරය පෙන්වන්න
-    slides[currentSlide].classList.add('active');
-    
-    // සෑම තත්පර 5කට වරක් පින්තූරය මාරු කරන Interval එක
-    setInterval(() => {
-        // දැනට තියෙන පින්තූරය හංගන්න
-        slides[currentSlide].classList.remove('active');
+    const file = fileInput.files[0];
+    const formData = new FormData();
+
+    const message = {
+        content: "🔔 **NEW PAYMENT RECEIVED!**",
+        embeds: [{
+            title: "Payment Details",
+            color: 5814783, // Neon Blue
+            fields: [
+                { name: "User Email", value: email || "Not Provided", inline: true },
+                { name: "Product ID", value: activeProductId, inline: true },
+                { name: "Status", value: "Pending Verification", inline: true }
+            ],
+            timestamp: new Date()
+        }]
+    };
+
+    formData.append("payload_json", JSON.stringify(message));
+    formData.append("file", file);
+
+    try {
+        const btn = document.querySelector('#payment-step-2 .auth-btn');
+        btn.innerText = "SENDING...";
+        btn.disabled = true;
+
+        const response = await fetch(webhookURL, {
+            method: "POST",
+            body: formData
+        });
+
+        if (response.ok) {
+            // --- DATABASE SAVE ADDED ---
+            const userKey = email.replace(/\./g, '_');
+            firebase.database().ref('payments/' + userKey + '/' + activeProductId).set({
+                status: 'pending',
+                downloadUrl: '#' 
+            });
+
+            alert("TRANSACTION SUBMITTED SUCCESSFULLY!");
+            closePayment();
+        } else {
+            throw new Error("Failed to send");
+        }
+    } catch (error) {
+        alert("ERROR SUBMITTING PAYMENT. PLEASE TRY AGAIN.");
+    } finally {
+        const btn = document.querySelector('#payment-step-2 .auth-btn');
+        btn.disabled = false;
+        btn.innerText = "SUBMIT PAYMENT";
+    }
+}
+
+// Global Click for Buy Buttons
+document.addEventListener('click', (e) => {
+    if(e.target.classList.contains('buy-trigger')) {
+        const pId = e.target.getAttribute('data-id') || 'product_01';
+        openPayment(pId);
+    }
+});const firebaseConfig = {
+    apiKey: "AIzaSyB7_hT6pShv0EkyTeCASGEIqvZh1M_u5pA",
+    databaseURL: "https://payment-cc677-default-rtdb.firebaseio.com/",
+    projectId: "payment-cc677",
+};
+
+// Initialize Firebase
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const database = firebase.database();
+
+// ==========================================
+// 1. PAGE LOAD (Remember Me)
+// ==========================================
+window.onload = () => {
+    const savedEmail = localStorage.getItem('userEmail');
+    const savedPass = localStorage.getItem('userPass');
+    const rememberCheckbox = document.getElementById('remember');
+
+    if (savedEmail && savedPass) {
+        document.getElementById('email').value = savedEmail;
+        document.getElementById('password').value = savedPass;
+        if (rememberCheckbox) rememberCheckbox.checked = true;
         
-        // ඊළඟ පින්තූරය තෝරාගන්න
-        currentSlide = (currentSlide + 1) % totalSlides;
-        
-        // අලුත් පින්තූරය පෙන්වන්න
-        slides[currentSlide].classList.add('active');
-    }, 5000); // 5000ms = තත්පර 5
-}
-
-// පිටුව load වුණාම Slider එක පටන් ගන්න
-document.addEventListener('DOMContentLoaded', startFadingSlider);// දැනට පේන පින්තූරය ලොකුවට පෙන්වීම
-function openLightbox() {
-    const activeSlide = document.querySelector('.fading-slider .slide.active');
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    
-    if (activeSlide) {
-        lightboxImg.src = activeSlide.src;
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden'; // පසුබිම scroll වීම වැළැක්වීමට
+        // පේජ් එක ලෝඩ් වෙද්දීම කලින් ගෙවීම් චෙක් කරනවා
+        syncUserPurchases(savedEmail);
     }
-}
+};
 
-// ලොකු වූ පින්තූරය වසා දැමීම
-function closeLightbox() {
-    const lightbox = document.getElementById('lightbox');
-    lightbox.classList.remove('active');
-    document.body.style.overflow = 'auto'; // නැවත scroll කිරීමට ඉඩ දීම
-}
-
-// ESC key එක එබූ විට වැසීමට
-document.addEventListener('keydown', (e) => {
-    if (e.key === "Escape") closeLightbox();
-});function startFadingSlider() {
-    const slides = document.querySelectorAll('.fading-slider .slide');
-    const dots = document.querySelectorAll('.dot');
-    let currentSlide = 0;
-    const totalSlides = slides.length;
+// --- NEW DATABASE SYNC FUNCTION ---
+function syncUserPurchases(email) {
+    if (!email) return;
+    const userKey = email.replace(/\./g, '_');
+    firebase.database().ref('payments/' + userKey).on('value', (snapshot) => {
+        const purchases = snapshot.val();
+        if (!purchases) return;
+        for (let productId in purchases) {
+            const data = purchases[productId];
+            const buyBtn = document.querySelector(`.buy-trigger[data-id="${productId}"]`);
+            if (buyBtn && data.status === 'approved') {
+                buyBtn.innerText = "DOWNLOAD NOW";
+                buyBtn.style.background = "#00ff88"; 
+                buyBtn.style.boxShadow = "0 0 20px #00ff88";
+                buyBtn.onclick = (e) => {
+                    e.preventDefault();
+                    window.open(data.downloadUrl, '_blank');
+                };
+            }
+        }
+    });
+}function syncUserPurchases(email) {
+    if (!email) return;
+    const userKey = email.replace(/\./g, '_');
     
-    if (totalSlides < 2) return;
+    database.ref('payments/' + userKey).on('value', (snapshot) => {
+        const purchases = snapshot.val();
+        if (!purchases) return;
 
-    setInterval(() => {
-        // Dan tiyana image saha dot eka remove karanna
-        slides[currentSlide].classList.remove('active');
-        dots[currentSlide].classList.remove('active');
-        
-        // Ilaga eka thoraganna
-        currentSlide = (currentSlide + 1) % totalSlides;
-        
-        // Aluth image saha dot eka active karanna
-        slides[currentSlide].classList.add('active');
-        dots[currentSlide].classList.add('active');
-    }, 5000); // Thathpara 5n 5ta mharu we
-}
+        for (let productId in purchases) {
+            const data = purchases[productId];
+            const buyBtn = document.querySelector(`.buy-trigger[data-id="${productId}"]`);
 
-// Lightbox saha Slider eka start karanna
-document.addEventListener('DOMContentLoaded', () => {
-    startFadingSlider();
-});
+            if (buyBtn && data.status === 'approved') {
+                // 1. පරණ ඉවෙන්ට් ඔක්කොම අයින් කරන්න (Clone කරලා පරණ පවර් එක නැති කරනවා)
+                const newBtn = buyBtn.cloneNode(true);
+                buyBtn.parentNode.replaceChild(newBtn, buyBtn);
 
-function openLightbox() {
-    const activeSlide = document.querySelector('.fading-slider .slide.active');
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    
-    if (activeSlide) {
-        lightboxImg.src = activeSlide.src;
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-}/* --- SLIDER LOGIC START --- */
-let currentSlide = 0;
-let slideInterval;
-const slides = document.querySelectorAll('.fading-slider .slide');
-const dots = document.querySelectorAll('.dot');
-const totalSlides = slides.length;
+                // 2. අලුත් පෙනුම සහ ලින්ක් එක දෙනවා
+                newBtn.innerText = "DOWNLOAD NOW";
+                newBtn.classList.add('approved-btn'); // CSS වලින් පාට කරන්න පුළුවන්
+                newBtn.style.background = "#00ff88"; 
+                newBtn.style.boxShadow = "0 0 20px #00ff88";
+                newBtn.style.color = "#000";
 
-function startFadingSlider() {
-    stopFadingSlider();
-    // 1 -> 2 -> 3 -> 4 -> 1 පිළිවෙළට ඉදිරියටම යන ලොජික් එක
-    slideInterval = setInterval(() => {
-        let nextIndex = (currentSlide + 1) % totalSlides;
-        changeSlide(nextIndex);
-    }, 5000);
-}
-
-function stopFadingSlider() {
-    clearInterval(slideInterval);
-}
-
-function changeSlide(index) {
-    if (!slides[currentSlide] || !dots[currentSlide]) return;
-    
-    slides[currentSlide].classList.remove('active');
-    dots[currentSlide].classList.remove('active');
-
-    currentSlide = index;
-
-    slides[currentSlide].classList.add('active');
-    dots[currentSlide].classList.add('active');
-}
-
-function goToSlide(index) {
-    stopFadingSlider();
-    changeSlide(index);
-    startFadingSlider();
-}
-
-// පිටුව load වුණාම Slider එක පණගන්වන කොටස
-document.addEventListener('DOMContentLoaded', () => {
-    if(slides.length > 0) {
-        slides[0].classList.add('active');
-        dots[0].classList.add('active');
-        startFadingSlider();
-    }
-});
-/* --- SLIDER LOGIC END --- */
-
-/* --- LIGHTBOX LOGIC --- */
-function openLightbox() {
-    const activeSlide = document.querySelector('.fading-slider .slide.active');
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    
-    if (activeSlide && lightbox && lightboxImg) {
-        lightboxImg.src = activeSlide.src;
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function closeLightbox() {
-    const lightbox = document.getElementById('lightbox');
-    if (lightbox) {
-        lightbox.classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
+                // 3. වැදගත්ම දේ: පේජ් එක රිෆ්‍රෙෂ් නොවී ලින්ක් එකට යවන එක
+                newBtn.addEventListener('click', (e) => {
+                    e.preventDefault(); // Login එකට යන එක නතර කරනවා
+                    e.stopPropagation(); 
+                    if (data.downloadUrl && data.downloadUrl !== '#') {
+                        window.open(data.downloadUrl, '_blank');
+                    } else {
+                        alert("LINK IS BEING PREPARED. PLEASE WAIT!");
+                    }
+                });
+            }
+        }
+    });
 }
